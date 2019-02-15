@@ -6,9 +6,11 @@ mongoose.connect('mongodb://localhost/playground')
         console.log(message);
     });
 exports.mongoose = mongoose;
+
 const userSchema = mongoose.Schema({
     username: String,
-    password: String
+    password: String,
+    fullname: String
 });
 
 
@@ -63,5 +65,17 @@ exports.CheckExistUsername = async function (username) {
 
     console.log("Chưa có trong DB");
     return true;
+}
+
+exports.GetAllPeopleStatus = async () => {
+    let result = await User.find();
+    return result.map(x => {
+        return {
+            username: x.username,
+            fullname: x.fullname,
+            active: true
+        }
+    });
+
 }
 //Save(hien);

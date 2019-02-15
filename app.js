@@ -4,6 +4,7 @@ const authentication = require('./authentication/authentication');
 const User = require('./authentication/User');
 const bodyParser = require('body-parser');
 
+let rooms = [];
 
 //Connect Socket.io
 let server = app.listen(3000, () => console.log("Application start on port 3000..."));
@@ -113,6 +114,72 @@ io.on('connection', (socket) => {
             sender: socket.handshake.session.user.username,
             message: mess
         });
+    });
+
+
+    //Đồng bộ hóa tin nhắn
+    let syncMessage = async (receiver) => {
+
+        let roomId = socket.handshake.session.user.username + receiver + socket.handshake.session.user.username;
+        let roomId2 = receiver + socket.handshake.session.user.username + receiver;
+        let allMessage = await MessageService.GetAllMessage(roomId);
+        let allMessage2 = await MessageService.GetAllMessage(roomId2);
+        allMessage2.forEach(x => allMessage.push(x));
+        allMessage = allMessage.sort((x, y) => {
+            return x.sendTime - y.sendTime
+        });
+        if (allMessage) {
+            socket.emit('allMessageToMessage', allMessage); // tat ca tin nhan cua minh vaf nguoi minh gui
+        }
+
+    }
+    socket.on('allMessageTo', syncMessage);
+
+    socket.on('messageTo', async (message) => {
+
+
+        let roomId = socket.handshake.session.user.username + message.receiver +
+            socket.handshake.session.user.username;
+        let idCombine = socket.handshake.session.user.username + message.receiver;
+
+        let messageToSend = new MessageService.Message({
+            type: "text",
+            sender: socket.handshake.session.user.username,
+            sendTime: Date.now(),
+            roomId: roomId,
+            content: message.content
+        });
+        console.log(messageToSend);
+        MessageService.SaveMessage(messageToSend);
+        let currrentRoom;
+        rooms.forEach(x => {
+            if (x.includes(idCombine))
+                currrentRoom = x;
+        })
+        console.log(currrentRoom);
+        if (currrentRoom) {
+            console.log(socket.rooms);
+            if (!socket.rooms[currrentRoom])
+                socket.join(currrentRoom);
+            socket.broadcast.to(currrentRoom).emit('IncomeMessage', {
+                sender: messageToSend.sender,
+                message: messageToSend.content
+            });
+        } else {
+            syncMessage(message.receiver);
+            rooms.push(roomId);
+            socket.join(roomId);
+            socket.broadcast.to(roomId).emit('IncomeMessage', messageToSend);
+        }
+
     })
+
+    socket.on('peopleStatus', async () => {
+        let allPeople = await User.GetAllPeopleStatus();
+        allPeople = allPeople.filter(x => x.username != socket.handshake.session.user.username);
+        socket.emit('AllPeople', allPeople);
+    });
+
+
 
 });

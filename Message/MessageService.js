@@ -1,5 +1,4 @@
 const mongoose = require('../authentication/User').mongoose;
-
 const messageSchema = mongoose.Schema({
     type: String,
     sender: String,
@@ -18,7 +17,7 @@ exports.SaveMessage = async function (mess) {
 exports.GetAllMessage = async function (roomId) {
     let result = await Message.find({
         roomId: roomId
-    });
+    })
 
     return result;
 }
