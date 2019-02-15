@@ -133,13 +133,15 @@ io.on('connection', (socket) => {
         }
 
     }
-    socket.on('allMessageTo', syncMessage);
+    socket.on('allMessageTo', syncMessage); // lấy toàn bộ tin nhắn cũ 
 
     socket.on('messageTo', async (message) => {
 
-
+        // id phòng là tên 2 người 
         let roomId = socket.handshake.session.user.username + message.receiver +
             socket.handshake.session.user.username;
+
+        // id này để check có nằm trong id trên
         let idCombine = socket.handshake.session.user.username + message.receiver;
 
         let messageToSend = new MessageService.Message({
@@ -149,25 +151,30 @@ io.on('connection', (socket) => {
             roomId: roomId,
             content: message.content
         });
-        console.log(messageToSend);
         MessageService.SaveMessage(messageToSend);
+
+        //kiểm tra xem room đã tồn tại chưa
         let currrentRoom;
         rooms.forEach(x => {
             if (x.includes(idCombine))
                 currrentRoom = x;
         })
-        console.log(currrentRoom);
+        //nếu đã tồn tại room
         if (currrentRoom) {
-            console.log(socket.rooms);
-            if (!socket.rooms[currrentRoom])
+            if (!socket.rooms[currrentRoom]) // nếu chưa join vào room 
+            {
+                syncMessage(message.receiver);
                 socket.join(currrentRoom);
+            }
+
+
             socket.broadcast.to(currrentRoom).emit('IncomeMessage', {
                 sender: messageToSend.sender,
                 message: messageToSend.content
             });
-        } else {
-            syncMessage(message.receiver);
-            rooms.push(roomId);
+        } else //room chưa tồn tại
+        {
+            rooms.push(roomId); //tạo room
             socket.join(roomId);
             socket.broadcast.to(roomId).emit('IncomeMessage', messageToSend);
         }
