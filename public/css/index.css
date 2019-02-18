@@ -3,7 +3,7 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    font-family: "proxima-nova", "Source Sans Pro", sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 1em;
     letter-spacing: 0.1px;
     color: #32465a;
@@ -357,7 +357,7 @@ body {
 }
 
 #frame #sidepanel #search input {
-    font-family: "proxima-nova", "Source Sans Pro", sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 10px 0 10px 46px;
     width: calc(100% - 25px);
     border: none;
@@ -543,7 +543,7 @@ body {
     color: #f5f5f5;
     cursor: pointer;
     font-size: 0.85em;
-    font-family: "proxima-nova", "Source Sans Pro", sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 @media screen and (max-width: 735px) {
@@ -683,7 +683,7 @@ body {
 }
 
 #frame .content .messages ul li.sent img {
-    margin: 6px 8px 0 0;
+    margin: 6px 8px 0 2px;
 }
 
 #frame .content .messages ul li.sent p {
@@ -694,7 +694,7 @@ body {
 
 #frame .content .messages ul li.replies img {
     float: left;
-    margin: 6px 0 0 8px;
+    margin: 6px 4px 0 8px;
 }
 
 #frame .content .messages ul li.replies p {
@@ -713,7 +713,7 @@ body {
     padding: 10px 15px;
     border-radius: 20px;
     max-width: 205px;
-    line-height: 130%;
+    line-height: 140%;
 }
 
 @media screen and (min-width: 735px) {
@@ -735,7 +735,7 @@ body {
 }
 
 #frame .content .message-input .wrap input {
-    font-family: "proxima-nova", "Source Sans Pro", sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     float: left;
     border: none;
     width: calc(100% - 50px);

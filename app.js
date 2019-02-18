@@ -37,12 +37,55 @@ app.use(bodyParser.urlencoded({
 
 
 
+//Route 
 app.get("/", function (req, res) {
 
     res.sendFile('./authentication/login.html', {
         root: __dirname
     })
 });
+
+app.get('/register', function (req, res) {
+    res.sendFile('./authentication/register.html', {
+        root: __dirname
+    });
+});
+app.post('/register', async function (req, res) {
+
+    let user = new User.ApplicatiionUser({
+        username: req.body.username,
+        password: req.body.password,
+        fullname: req.body.fullname,
+        isActive: false,
+        imageUrl: ''
+    });
+    console.log(user);
+    console.log(req.body.reEnterPassword)
+    if (user.password != req.body.reEnterPassword) {
+
+        res.redirect('/register');
+        return;
+    }
+    if (await User.CheckExistUsername(user.username)) {
+        res.redirect('/register');
+        return;
+    }
+    if (!user.username || !user.password || !user.fullname) {
+        res.redirect('/register');
+        return;
+    }
+
+
+
+    await User.SaveUser(user);
+    res.sendFile("./authentication/registerSuccess.html", {
+        root: __dirname
+    });
+
+});
+
+
+
 
 app.post("/login", async (req, res) => {
     let user = new User.ApplicatiionUser({
@@ -78,6 +121,15 @@ io.on('connection', (socket) => {
 
     if (!socket.handshake.session.user)
         return;
+    socket.broadcast.emit('contactStatusChanged');
+    User.ActiveStatus(socket.handshake.session.user.username);
+
+    socket.on('disconnect', async (reason) => {
+        console.log(socket.handshake.session.user.username, " disconnected");
+        await User.DeActiveStatus(socket.handshake.session.user.username);
+        await socket.broadcast.emit('contactStatusChanged');
+    })
+
 
     socket.on('getInfo', () => {
         if (socket.handshake.session.user) {
@@ -85,7 +137,8 @@ io.on('connection', (socket) => {
             let data = socket.handshake.session.user;
             socket.emit("YourInfo", {
                 username: data.username,
-                fullname: data.fullname
+                fullname: data.fullname,
+                imageUrl: data.imageUrl
             });
         } else {
             console.log("anonymous");
@@ -182,8 +235,22 @@ io.on('connection', (socket) => {
     })
 
     socket.on('peopleStatus', async () => {
-        let allPeople = await User.GetAllPeopleStatus();
+        //Lấy tên và trạng thái của tất cả mọi người 
+        let allPeople = await User.GetAllPeopleStatus(socket.handshake.session.user.username);
         allPeople = allPeople.filter(x => x.username != socket.handshake.session.user.username);
+
+        //Lấy tin nhắn cuối cùng của người gửi vàn người nhận
+        for (const person of allPeople) {
+            person.lastMessage = await MessageService.GetLastMessage(socket.handshake.session.user.username, person.username);
+            if (person.lastMessage) {
+                if (person.lastMessage.sender == socket.handshake.session.user.username)
+                    person.lastMessage = "Đi: " + person.lastMessage.content;
+                else
+                    person.lastMessage = "Tới: " + person.lastMessage.content;
+            }
+
+        }
+
         socket.emit('AllPeople', allPeople);
     });
 
