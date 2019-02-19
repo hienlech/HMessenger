@@ -37,19 +37,20 @@ exports.GetAllMessage = async function (roomId) {
         }
     ]);
 
-    return result2.map(x => {
-        return {
-            content: x.content,
-            type: x.type,
-            roomId: x.roomId,
-            sendTime: x.sendTime,
-            sender: x.sender,
-            senderDetail: {
-                fullname: x.Sender[0].fullname,
-                imageUrl: x.Sender[0].imageUrl
+    return result2
+        .map(x => {
+            return {
+                content: x.content,
+                type: x.type,
+                roomId: x.roomId,
+                sendTime: x.sendTime,
+                sender: x.sender,
+                senderDetail: {
+                    fullname: x.Sender[0].fullname,
+                    imageUrl: x.Sender[0].imageUrl
+                }
             }
-        }
-    });
+        });
 }
 exports.GetLastMessage = async (getterusername, username) => {
     let roomId = getterusername + username + getterusername;
