@@ -51,7 +51,7 @@ let MessToUsername;
 //sử dụng trực tiếp http request để upgrade , không dùng ajax
 let socket = io.connect("/", {
     transports: ['websocket'],
-    upgrade: false
+    //upgrade: false
 
 });
 

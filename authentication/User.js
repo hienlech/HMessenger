@@ -1,5 +1,37 @@
 const mongoose = require('mongoose');
 const MessageService = require('../Message/MessageService');
+
+let ActiveList = ['global'];
+
+exports.ActiveStatus = (username) => {
+
+    if (ActiveList.includes(username))
+        return;
+    ActiveList.push(username);
+    // let result = await User.findOneAndUpdate({
+    //     username: username
+    // }, {
+    //     isActive: true
+    // }, {
+    //     upsert: true
+    // }).exec();
+    // console.log(result);
+    console.log(ActiveList);
+}
+exports.DeActiveStatus = (username) => {
+    let findUsername = ActiveList.indexOf(username);
+    if (findUsername >= 0)
+        ActiveList.splice(findUsername, 1);
+    // let result = await User.findOneAndUpdate({
+    //     username: username
+    // }, {
+    //     isActive: false
+    // }, {
+    //     upsert: true
+    // });
+}
+
+
 mongoose.connect('mongodb://localhost/playground', {
         useNewUrlParser: true
     })
@@ -21,7 +53,7 @@ const userSchema = mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-module.exports.ApplicatiionUser = User;
+module.exports.ApplicationUser = User;
 
 let hien = new User({
     username: "thanh",
@@ -36,7 +68,7 @@ exports.SaveUser = async function Save(data) {
 
 
 exports.Login = async function Login(data) {
-    let result = await User.find({
+    let result = await exports.ApplicationUser.find({
         username: data.username,
         password: data.password
     });
@@ -81,30 +113,10 @@ exports.GetAllPeopleStatus = async (getterusername) => {
         return {
             username: x.username,
             fullname: x.fullname,
-            active: x.isActive,
+            active: ActiveList.includes(x.username),
             imageUrl: x.imageUrl,
             lastMessage: ""
         }
     });
 
-}
-
-exports.ActiveStatus = async (username) => {
-    let result = await User.findOneAndUpdate({
-        username: username
-    }, {
-        isActive: true
-    }, {
-        upsert: true
-    }).exec();
-    console.log(result);
-}
-exports.DeActiveStatus = async (username) => {
-    let result = await User.findOneAndUpdate({
-        username: username
-    }, {
-        isActive: false
-    }, {
-        upsert: true
-    });
 }

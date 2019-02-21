@@ -20,6 +20,7 @@ app.use(session);
 const sharedSession = require('express-socket.io-session');
 
 io.use(sharedSession(session, {
+
     autoSave: true
 }));
 
@@ -88,7 +89,7 @@ app.post('/register', async function (req, res) {
 
 
 app.post("/login", async (req, res) => {
-    let user = new User.ApplicatiionUser({
+    let user = new User.ApplicationUser({
         username: req.body.username,
         password: req.body.password
     });
@@ -100,7 +101,7 @@ app.post("/login", async (req, res) => {
         req.session.user = result;
         res.redirect("/home");
     } else
-        res.send("Đăng nhập thất bại");
+        res.redirect("/");
 
 
 
@@ -121,8 +122,9 @@ io.on('connection', (socket) => {
 
     if (!socket.handshake.session.user)
         return;
-    socket.broadcast.emit('contactStatusChanged');
+
     User.ActiveStatus(socket.handshake.session.user.username);
+    socket.broadcast.emit('contactStatusChanged');
 
     socket.on('disconnect', async (reason) => {
         console.log(socket.handshake.session.user.username, " disconnected");
@@ -173,8 +175,8 @@ io.on('connection', (socket) => {
     //Đồng bộ hóa tin nhắn
     let syncMessage = async (receiver) => {
 
-        let roomId = socket.handshake.session.user.username + receiver + socket.handshake.session.user.username;
-        let roomId2 = receiver + socket.handshake.session.user.username + receiver;
+        let roomId = socket.handshake.session.user.username + "#" + receiver + "#" + socket.handshake.session.user.username;
+        let roomId2 = receiver + "#" + socket.handshake.session.user.username + "#" + receiver;
         let allMessage = await MessageService.GetAllMessage(roomId);
         let allMessage2 = await MessageService.GetAllMessage(roomId2);
         allMessage2.forEach(x => allMessage.push(x));
@@ -191,11 +193,11 @@ io.on('connection', (socket) => {
     socket.on('messageTo', async (message) => {
 
         // id phòng là tên 2 người 
-        let roomId = socket.handshake.session.user.username + message.receiver +
+        let roomId = socket.handshake.session.user.username + "#" + message.receiver + "#" +
             socket.handshake.session.user.username;
 
         // id này để check có nằm trong id trên
-        let idCombine = socket.handshake.session.user.username + message.receiver;
+        let idCombine = socket.handshake.session.user.username + "#" + message.receiver;
 
         let messageToSend = new MessageService.Message({
             type: "text",
@@ -204,7 +206,8 @@ io.on('connection', (socket) => {
             roomId: roomId,
             content: message.content
         });
-        MessageService.SaveMessage(messageToSend);
+        await MessageService.SaveMessage(messageToSend);
+        await io.emit('contactStatusChanged');
 
         //kiểm tra xem room đã tồn tại chưa
         let currrentRoom;

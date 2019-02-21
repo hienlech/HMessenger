@@ -6,11 +6,11 @@ const messageSchema = mongoose.Schema({
     roomId: String,
     content: String
 });
-
+exports.mongoose = mongoose;
 const Message = mongoose.model('message', messageSchema);
 exports.Message = Message;
 
-exports.SaveMessage = async function (mess) {
+exports.SaveMessage = function (mess) {
     let result = mess.save();
 }
 
@@ -53,8 +53,8 @@ exports.GetAllMessage = async function (roomId) {
         });
 }
 exports.GetLastMessage = async (getterusername, username) => {
-    let roomId = getterusername + username + getterusername;
-    let roomId2 = username + getterusername + username;
+    let roomId = getterusername + "#" + username + "#" + getterusername;
+    let roomId2 = username + "#" + getterusername + "#" + username;
     let allMessage = await exports.GetAllMessage(roomId);
     let allMessage2 = await exports.GetAllMessage(roomId2);
     allMessage2.forEach(x => allMessage.push(x));
