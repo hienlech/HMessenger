@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const MessageService = require('../Message/MessageService');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 let ActiveList = ['global'];
 
@@ -61,6 +63,9 @@ let hien = new User({
 });
 exports.SaveUser = async function Save(data) {
 
+    let hashPass = await bcrypt.hash(data.password, saltRounds);
+    console.log(hashPass);
+    data.password = hashPass;
     let result = await data.save();
     // console.log(result);
 }
@@ -68,19 +73,20 @@ exports.SaveUser = async function Save(data) {
 
 
 exports.Login = async function Login(data) {
-    let result = await exports.ApplicationUser.find({
-        username: data.username,
-        password: data.password
-    });
-    if (result.length > 0) {
-        console.log("Đăng nhập thành công");
-        return result[0];
 
-    }
+    let result = await exports.ApplicationUser.find({
+        username: data.username
+    });
+    if (result.length < 1)
+        return false;
+    if (await bcrypt.compare(data.password, result[0].password))
+        return result[0];
+    console.log("đăng nhập thành công")
+
+
 
     console.log("Đăng nhập thất bại");
     return false;
-
 
 }
 

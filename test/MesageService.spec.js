@@ -75,7 +75,7 @@ describe('User', () => {
     afterAll(async () => {
         await Users.mongoose.disconnect();
     })
-    it('Login must return true', async (done) => {
+    it('Login must return true if exist in db', async (done) => {
 
         Users.ApplicationUser.find = function (data) {
             return [{
@@ -89,6 +89,20 @@ describe('User', () => {
         expect(result).toEqual({
             name: "hien"
         });
+        await done();
+
+    })
+
+    it('Login must false true if not exist in db', async (done) => {
+
+        Users.ApplicationUser.find = function (data) {
+            return [];
+        }
+        let result = await Users.Login({
+            username: "dà",
+            password: "ádfdsdf"
+        });
+        expect(result).toBeFalsy();
         await done();
 
     })

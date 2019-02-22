@@ -53,7 +53,7 @@ app.get('/register', function (req, res) {
 });
 app.post('/register', async function (req, res) {
 
-    let user = new User.ApplicatiionUser({
+    let user = new User.ApplicationUser({
         username: req.body.username,
         password: req.body.password,
         fullname: req.body.fullname,
