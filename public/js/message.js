@@ -308,5 +308,6 @@ function newOtherMessage(mess) {
     $('.contact.active .preview').html('<span>You: </span>' + mess.message);
 
     var l = document.getElementsByClassName("replies").length;
-    document.getElementsByClassName("replies")[l - 1].scrollIntoView();
+    //chuyển màn hình tới tin nhắn mới nhất
+    // document.getElementsByClassName("replies")[l - 1].scrollIntoView();
 };

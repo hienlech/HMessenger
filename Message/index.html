@@ -9,7 +9,13 @@
 <head>
 
 
-  <script>try{Typekit.load({ async: true });}catch(e){}</script>
+  <script>
+    try {
+      Typekit.load({
+        async: true
+      });
+    } catch (e) {}
+  </script>
   <title>TMessager</title>
   <link rel='stylesheet prefetch' href='css/reset.min.css'>
   <link rel="icon" type="image/png" href="images/icons/messenger.png" />
@@ -50,10 +56,10 @@
           <div id="expanded">
             <label for="twitter"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></label>
             <input name="twitter" type="text" value="" />
-            <label for="twitter"><i class="fa fa-twitter fa-fw" aria-hidden="true"></i></label>
-            <input name="twitter" type="text" value="" />
-            <label for="twitter"><i class="fa fa-instagram fa-fw" aria-hidden="true"></i></label>
-            <input name="twitter" type="text" value="" />
+            <div class="d-flex justify-content-center m-2">
+              <a class="btn btn-danger btn-sm " href="/logout">Log out</a>
+            </div>
+
           </div>
         </div>
       </div>
