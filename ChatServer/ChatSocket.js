@@ -61,7 +61,7 @@ exports.init = (server, session) => {
             });
             MessageService.SaveMessage(message);
             socket.broadcast.to(globalRoom).emit('IncomeMessage', {
-                sender: socket.handshake.session.user.username,
+                sender: socket.handshake.session.user.fullname,
                 message: mess,
                 senderImageUrl: socket.handshake.session.user.imageUrl
             });
@@ -141,8 +141,9 @@ exports.init = (server, session) => {
 
 
                 socket.broadcast.to(currrentRoom).emit('IncomeMessage', {
-                    sender: messageToSend.sender,
-                    message: messageToSend.content
+                    sender: socket.handshake.session.user.fullname,
+                    message: messageToSend.content,
+                    senderImageUrl: socket.handshake.session.user.imageUrl
                 });
             } else //room chưa tồn tại
             {
