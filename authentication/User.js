@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const MessageService = require('../Message/MessageService');
-const bcrypt = require('bcrypt');
+exports.bcrypt = require('bcrypt');
 const saltRounds = 10;
-
+let bcrypt = exports.bcrypt;
 let ActiveList = ['global'];
 
 exports.ActiveStatus = (username) => {
@@ -79,9 +79,12 @@ exports.Login = async function Login(data) {
     });
     if (result.length < 1)
         return false;
-    if (await bcrypt.compare(data.password, result[0].password))
+    if (await bcrypt.compare(data.password, result[0].password)) {
+
+        console.log("đăng nhập thành công");
         return result[0];
-    console.log("đăng nhập thành công")
+    }
+
 
 
 
