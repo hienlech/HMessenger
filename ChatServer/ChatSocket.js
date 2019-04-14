@@ -1,3 +1,4 @@
+let rooms = [];
 const User = require('../authentication/User');
 exports.init = (server, session) => {
     let io = require('socket.io')(server);
@@ -43,6 +44,7 @@ exports.init = (server, session) => {
 
         socket.on('getAllMessage', async () => {
 
+            socket.join(globalRoom);
             socket.emit('allMessage', await MessageService.GetAllMessage(globalRoom));
         })
 
@@ -58,9 +60,10 @@ exports.init = (server, session) => {
                 content: mess
             });
             MessageService.SaveMessage(message);
-            socket.broadcast.volatile.emit('IncomeMessage', {
-                sender: socket.handshake.session.user.username,
-                message: mess
+            socket.broadcast.to(globalRoom).emit('IncomeMessage', {
+                sender: socket.handshake.session.user.fullname,
+                message: mess,
+                senderImageUrl: socket.handshake.session.user.imageUrl
             });
         });
 
@@ -70,6 +73,25 @@ exports.init = (server, session) => {
 
             let roomId = socket.handshake.session.user.username + "#" + receiver + "#" + socket.handshake.session.user.username;
             let roomId2 = receiver + "#" + socket.handshake.session.user.username + "#" + receiver;
+            socket.leave(globalRoom);
+            //lấy tin nhắn thì sẽ join vào phòng chat
+            let idCombine = socket.handshake.session.user.username + "#" + receiver;
+            let currrentRoom;
+            rooms.forEach(x => {
+                if (x.includes(idCombine))
+                    currrentRoom = x;
+            })
+            if (currrentRoom) {
+                if (!socket.rooms[currrentRoom]) // nếu chưa join vào room 
+                {
+                    socket.join(currrentRoom);
+                }
+            } else //room chưa tồn tại
+            {
+                rooms.push(roomId); //tạo room
+                socket.join(roomId);
+
+            }
             let allMessage = await MessageService.GetAllMessage(roomId);
             let allMessage2 = await MessageService.GetAllMessage(roomId2);
             allMessage2.forEach(x => allMessage.push(x));
@@ -99,6 +121,8 @@ exports.init = (server, session) => {
                 roomId: roomId,
                 content: message.content
             });
+
+
             await MessageService.SaveMessage(messageToSend);
             await io.emit('contactStatusChanged');
 
@@ -110,6 +134,7 @@ exports.init = (server, session) => {
             })
             //nếu đã tồn tại room
             if (currrentRoom) {
+
                 if (!socket.rooms[currrentRoom]) // nếu chưa join vào room 
                 {
                     syncMessage(message.receiver);
@@ -118,8 +143,9 @@ exports.init = (server, session) => {
 
 
                 socket.broadcast.to(currrentRoom).emit('IncomeMessage', {
-                    sender: messageToSend.sender,
-                    message: messageToSend.content
+                    sender: socket.handshake.session.user.fullname,
+                    message: messageToSend.content,
+                    senderImageUrl: socket.handshake.session.user.imageUrl
                 });
             } else //room chưa tồn tại
             {

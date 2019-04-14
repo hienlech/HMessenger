@@ -60,7 +60,8 @@ socket.on('connect', function () {
 
 });
 socket.on('disconnect', () => {
-    alert('disconnected');
+    alert('Đã ngắt kết nối');
+    location.reload();
 })
 
 
@@ -304,10 +305,10 @@ function newOtherMessage(mess) {
     $('<li class="replies"><span>' + mess.sender +
         `</span><img src="${image}" alt="" /><p>` + mess.message +
         '</p></li>').appendTo($('.messages ul'));
-    $('.message-input input').val(null);
+
     $('.contact.active .preview').html('<span>You: </span>' + mess.message);
 
     var l = document.getElementsByClassName("replies").length;
     //chuyển màn hình tới tin nhắn mới nhất
-    // document.getElementsByClassName("replies")[l - 1].scrollIntoView();
+    document.getElementsByClassName("replies")[l - 1].scrollIntoView();
 };

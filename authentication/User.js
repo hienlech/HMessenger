@@ -93,6 +93,12 @@ exports.Login = async function Login(data) {
 
 }
 
+exports.GetUserInfo = async (username) => {
+    return result = await exports.ApplicationUser.find({
+        username: data.username
+    })[0];
+}
+
 
 
 
@@ -128,4 +134,17 @@ exports.GetAllPeopleStatus = async (getterusername) => {
         }
     });
 
+}
+exports.GetUserInfo = async function (username) {
+    let result = await User.find({
+        username: username
+    });
+    if (result.length > 0) {
+        return result[0];
+
+
+    }
+
+    console.log("Chưa có trong DB");
+    return false;
 }

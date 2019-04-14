@@ -5,7 +5,7 @@ const User = require('./authentication/User');
 const bodyParser = require('body-parser');
 const chatSocket = require('./ChatServer/ChatSocket')
 
-let rooms = [];
+
 
 //Connect Socket.io
 let server = app.listen(3000, () => console.log("Application start on port 3000..."));
