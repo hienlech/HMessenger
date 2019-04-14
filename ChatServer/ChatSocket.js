@@ -44,6 +44,7 @@ exports.init = (server, session) => {
 
         socket.on('getAllMessage', async () => {
 
+            socket.join(globalRoom);
             socket.emit('allMessage', await MessageService.GetAllMessage(globalRoom));
         })
 
@@ -59,9 +60,10 @@ exports.init = (server, session) => {
                 content: mess
             });
             MessageService.SaveMessage(message);
-            socket.broadcast.volatile.emit('IncomeMessage', {
+            socket.broadcast.to(globalRoom).emit('IncomeMessage', {
                 sender: socket.handshake.session.user.username,
-                message: mess
+                message: mess,
+                senderImageUrl: socket.handshake.session.user.imageUrl
             });
         });
 
@@ -69,6 +71,7 @@ exports.init = (server, session) => {
         //Đồng bộ hóa tin nhắn
         let syncMessage = async (receiver) => {
 
+            socket.leaveAll();
             let roomId = socket.handshake.session.user.username + "#" + receiver + "#" + socket.handshake.session.user.username;
             let roomId2 = receiver + "#" + socket.handshake.session.user.username + "#" + receiver;
             //lấy tin nhắn thì sẽ join vào phòng chat
