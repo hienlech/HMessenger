@@ -1,3 +1,9 @@
-# TMessager
+# HMessenger
 Messager app using nodeJS , Socket.IO and MongoDB 
-netsh interface portproxy add v4tov4 listenport=3000 listenaddress=149.28.136.222 connectport=80 connectaddress=149.28.136.222
+version : 1.1 
+# Change log :
+v1.1 : - Allow upload avatar
+       - Sound alert on new message
+       - Rename from TMessager to HMessenger
+       - Fix bug
+
