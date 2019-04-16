@@ -122,6 +122,7 @@ socket.on('allMessage', (data) => {
 });
 
 socket.on('IncomeMessage', (message) => {
+    playSound("newMessage");
     newOtherMessage(message);
 })
 
@@ -163,6 +164,12 @@ function newMyMessage(message) {
 
 let globalAvatar = ImageFromName('KTPM 2');
 $('#roomImage').attr('src', globalAvatar);
+
+//âm thanh tin nhắn đến
+
+
+
+
 
 function DisplayAllContact(allContact) {
     $('#contacts ul').empty();
@@ -278,6 +285,8 @@ $(window).on('keydown', function (e) {
 //Gui tin nhan toi Global
 function newMessage() {
     message = $(".message-input input").val();
+    if (!message)
+        return;
     newMyMessage(message);
 
     if (MessToUsername && MessToUsername != 'global') {
