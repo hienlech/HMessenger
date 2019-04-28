@@ -1,11 +1,11 @@
 let rooms = [];
+const sharedSession = require('express-socket.io-session');
 const User = require('../authentication/User');
+
 exports.init = (server, session) => {
     let io = require('socket.io')(server);
-    const sharedSession = require('express-socket.io-session');
 
     io.use(sharedSession(session, {
-
         autoSave: true
     }));
 
@@ -18,10 +18,11 @@ exports.init = (server, session) => {
             return;
 
         User.ActiveStatus(socket.handshake.session.user.username);
+
         socket.broadcast.emit('contactStatusChanged');
 
         socket.on('disconnect', async (reason) => {
-            console.log(socket.handshake.session.user.username, " disconnected");
+            //  console.log(socket.handshake.session.user.username, " disconnected");
             await User.DeActiveStatus(socket.handshake.session.user.username);
             await socket.broadcast.emit('contactStatusChanged');
         })
@@ -36,21 +37,19 @@ exports.init = (server, session) => {
                     fullname: data.fullname,
                     imageUrl: data.imageUrl
                 });
-            } else {
-                console.log("anonymous");
+            };
 
-            }
         });
 
-        socket.on('getAllMessage', async () => {
+        socket.on('getAllGlobalMessage', async () => {
 
             socket.join(globalRoom);
-            socket.emit('allMessage', await MessageService.GetAllMessage(globalRoom));
+            socket.emit('allOldMessage', await MessageService.GetAllMessageByRoomID(globalRoom));
         })
 
 
 
-        socket.on('PostMessage', mess => {
+        socket.on('MessageToGlobal', mess => {
 
             let message = new MessageService.Message({
                 type: "text",
@@ -59,7 +58,9 @@ exports.init = (server, session) => {
                 roomId: globalRoom,
                 content: mess
             });
+
             MessageService.SaveMessage(message);
+
             socket.broadcast.to(globalRoom).emit('IncomeMessage', {
                 sender: socket.handshake.session.user.fullname,
                 message: mess,
@@ -71,9 +72,11 @@ exports.init = (server, session) => {
         //Đồng bộ hóa tin nhắn
         let syncMessage = async (receiver) => {
 
+            //rời khỏi phòng chat đang tham gia
             socket.leaveAll();
             let roomId = socket.handshake.session.user.username + "#" + receiver + "#" + socket.handshake.session.user.username;
             let roomId2 = receiver + "#" + socket.handshake.session.user.username + "#" + receiver;
+
             //lấy tin nhắn thì sẽ join vào phòng chat
             let idCombine = socket.handshake.session.user.username + "#" + receiver;
             let currrentRoom;
@@ -92,18 +95,25 @@ exports.init = (server, session) => {
                 socket.join(roomId);
 
             }
-            let allMessage = await MessageService.GetAllMessage(roomId);
-            let allMessage2 = await MessageService.GetAllMessage(roomId2);
+
+
+            //vì tin nhắn của 2 người có thể nằm ở 2 phòng khác nhau
+            let allMessage = await MessageService.GetAllMessageByRoomID(roomId);
+            let allMessage2 = await MessageService.GetAllMessageByRoomID(roomId2);
+
+            //ghép tn 2 phòng vào 1
             allMessage2.forEach(x => allMessage.push(x));
             allMessage = allMessage.sort((x, y) => {
                 return x.sendTime - y.sendTime
             });
+
             if (allMessage) {
-                socket.emit('allMessageToMessage', allMessage); // tat ca tin nhan cua minh vaf nguoi minh gui
+                socket.emit('allOldMessage', allMessage); // tat ca tin nhan cua minh vaf nguoi minh gui
             }
 
         }
         socket.on('allMessageTo', syncMessage); // lấy toàn bộ tin nhắn cũ 
+
 
         socket.on('messageTo', async (message) => {
 

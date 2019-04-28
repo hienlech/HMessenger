@@ -74,6 +74,7 @@ exports.HandleRegister = async (req, res) => {
                 crop: "fill"
             }
         }, async (err, result) => {
+
             if (err) {
                 console.log('Lỗi khi up lên cloudinary : ', err);
                 res.redirect('/register');

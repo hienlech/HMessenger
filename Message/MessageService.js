@@ -14,7 +14,7 @@ exports.SaveMessage = function (mess) {
     let result = mess.save();
 }
 
-exports.GetAllMessage = async function (roomId) {
+exports.GetAllMessageByRoomID = async function (roomId) {
     let result = await Message.find({
         roomId: roomId
     });
@@ -55,8 +55,8 @@ exports.GetAllMessage = async function (roomId) {
 exports.GetLastMessage = async (getterusername, username) => {
     let roomId = getterusername + "#" + username + "#" + getterusername;
     let roomId2 = username + "#" + getterusername + "#" + username;
-    let allMessage = await exports.GetAllMessage(roomId);
-    let allMessage2 = await exports.GetAllMessage(roomId2);
+    let allMessage = await exports.GetAllMessageByRoomID(roomId);
+    let allMessage2 = await exports.GetAllMessageByRoomID(roomId2);
     allMessage2.forEach(x => allMessage.push(x));
     allMessage = allMessage.sort((x, y) => {
         return x.sendTime - y.sendTime

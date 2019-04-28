@@ -20,6 +20,7 @@ exports.ActiveStatus = (username) => {
     // console.log(result);
     console.log(ActiveList);
 }
+
 exports.DeActiveStatus = (username) => {
     let findUsername = ActiveList.indexOf(username);
     if (findUsername >= 0)
@@ -141,8 +142,6 @@ exports.GetUserInfo = async function (username) {
     });
     if (result.length > 0) {
         return result[0];
-
-
     }
 
     console.log("Chưa có trong DB");
